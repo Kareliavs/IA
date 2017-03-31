@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "obstacle.hpp"
+///COMPILA ASI ----->g++ -std=c++11 main.cpp -o demo -lglut -lGL
 
 
 //////////////////////GRAFICO////////////////////////
