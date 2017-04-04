@@ -4,7 +4,7 @@
 #include <vector>
 #include <time.h>
 #include <math.h>
-
+#include <stack>
 #include "obstacle.hpp"
 ///COMPILA ASI ----->g++ -std=c++11 main.cpp -o demo -lglut -lGL
 
@@ -18,21 +18,25 @@
 #include <cstring>
 
 using namespace std;
+
 float tamanno = 1.0f;
 int up, down,left1,right1;
 int alto, ancho;
-int indice=0;
+int indice=0, mode=0;
 float proximidad;
 vector < pair<float,float> > puntos,lines, puntos_recorridos;
 vector < pair<pair<float,float>,pair<float,float>> > aristas,camino;
 vector <vector<float>> grafo;
+vector <vector<int>> familia;
+vector < vector < pair< int, vector<int> > > > arbol;
+vector < pair< int, vector<int> > > relacion;
 pair<float,float>  meta;
 pair<float,float>  punto_inicio;
 int coord_ini, coord_fin;
 float maxx,minx,maxy,miny;
 int N_OBS, avance;
 float costo=0;
-vector<int>Llenos;
+vector<int>Llenos,Llenos2;
 
 vector<cObstacle> obstacles;
 
@@ -43,6 +47,8 @@ float distancia(float x1, float x2, float y1, float y2)
 }
 #include "hillclimbing.hpp"
 #include "Aasterisco.hpp"
+#include "DFS.hpp"
+#include "BFS.hpp"
 //int j=0;
 void grafo_aux(float x1, float x2, int id)
 {
@@ -79,6 +85,24 @@ void grafo_construir()
 		cout<<endl;	
 	}*/
 }
+
+void construir_arbol()
+{
+	
+	for(int i=0; i<puntos.size();i++)
+	{	
+		vector<int> aux;
+		for(int j=0; j<puntos.size();j++)
+		{
+			if(grafo[i][j]!=0)
+			aux.push_back(j);
+		}
+		relacion.push_back(make_pair(0,aux));
+		Llenos2.push_back(0);
+	}	
+
+}
+
 void IniciarGLUT() 
 {
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -228,7 +252,24 @@ void Zoom(int value)
 	Llenos.clear();	
 	puntos_recorridos.clear();
         camino.clear();	
-	hill_climbing(grafo);
+
+	Llenos2.clear();	
+	vector<int> soluciones; 
+	vector<int>au;
+	for(int i=0; i<puntos.size();i++)
+		familia.push_back(au);
+//	ll=0;
+	if(mode==1)
+		hill_climbing(grafo);
+	else 
+	{	
+		//ll=0;
+		for(int i=0; i<puntos.size();i++)
+		{	
+			Llenos2.push_back(0);
+		}
+		DFS_ORG();
+   	}
    }
   
    if(right1)
@@ -237,8 +278,24 @@ void Zoom(int value)
 	Llenos.clear();	
 	puntos_recorridos.clear();
         camino.clear();	
-	a_asterisco(grafo);
-   }
+	
+	Llenos2.clear();	
+	vector<int> soluciones; 
+	vector<int>au;
+	for(int i=0; i<puntos.size();i++)
+		familia.push_back(au);
+//	ll=0;
+	if(mode==1)	
+		a_asterisco(grafo);
+	else 
+	{       	
+		for(int i=0; i<puntos.size();i++)
+		{	
+			Llenos2.push_back(0);
+		}		
+		BFS_ORG();
+   	}
+    }
     ReProyectar(ancho,alto);
     glutTimerFunc(33,Zoom,1);
     glutPostRedisplay();
@@ -264,11 +321,16 @@ void FlechasUp(int key, int x, int y) {
 
 int main(int argc, char **argv)
 {
-    
     cout<<"Ingrese el numero de puntos";
     cin>>N_OBS;
     cout<<endl<<"Proximidad tolerada";
     cin>>proximidad;
+    cout<<endl<<"Ingrese modo  (1->grafo, 2->arbol)";
+    cin>>mode;
+    if(mode==1)
+	cout<<endl<<"<- Hill Climbing / A* -> ";
+    else
+        cout<<endl<<"<- DFS / BFS -> ";	   
     avance=1;
     
     srand(time(NULL));
@@ -289,11 +351,14 @@ int main(int argc, char **argv)
 
     //uno=distancia(curiosity.m_x,meta.first,curiosity.m_y,meta.second);
     coord_ini=rand()%puntos.size();
+
     coord_fin=rand()%puntos.size();
-    
+    while(coord_ini==coord_fin)
+	{    coord_fin=rand()%puntos.size();}
     punto_inicio=puntos[coord_ini];
     meta=puntos[coord_fin];
     grafo_construir();
+    construir_arbol ();
    
 
     glutInit(&argc,argv); //Solo necesario en Linux
