@@ -8,13 +8,16 @@
 /*g++ -std=c++11  main2.cpp -o ale `pkg-config --cflags --libs allegro-5.0 allegro_acodec-5.0 allegro_audio-5.0 allegro_color-5.0 allegro_dialog-5.0 allegro_font-5.0 allegro_image-5.0 allegro_main-5.0 allegro_memfile-5.0 allegro_physfs-5.0 allegro_primitives-5.0 allegro_ttf-5.0`
 */
 using namespace std;
+int kiwi=0,tab=0;
 const float FPS = 60;
 const int SCREEN_W = 600;
+const int SCREEN_WP = 800;
 const int SCREEN_H = 600;
 const int BOUNCER_SIZE = 20;
 vector<pair<float,float> >coordenadas;
 vector<vector<int>>reinas;
 int num_reinas=0;
+#include "8.cpp"
 int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display = NULL;
@@ -25,14 +28,16 @@ int main(int argc, char **argv)
    ALLEGRO_BITMAP  *gameover   = NULL;
    ALLEGRO_BITMAP  *tryagain  = NULL;
    ALLEGRO_BITMAP  *help   = NULL;
+   ALLEGRO_BITMAP  *tablero   = NULL;
    ALLEGRO_BITMAP  *exit   = NULL;
    ALLEGRO_BITMAP  *fondo  = NULL;
    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
    ALLEGRO_TIMER *timer = NULL;
    ALLEGRO_BITMAP *bouncer = NULL;
-   float bouncer_x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
+   float bouncer_x = SCREEN_WP / 2.0 - BOUNCER_SIZE / 2.0;
    float bouncer_y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
    bool redraw = true;
+   
 ////INICIALIZAR MATRIZ
 vector<int>k;
 for(int i=0; i<8;i++)
@@ -64,7 +69,7 @@ for(int i=0; i<8;i++)
       return -1;
    }
  
-   display = al_create_display(SCREEN_W+200, SCREEN_H);
+   display = al_create_display(SCREEN_WP, SCREEN_H);
    if(!display) {
       fprintf(stderr, "fallo creación de display!\n");
       al_destroy_timer(timer);
@@ -85,6 +90,7 @@ for(int i=0; i<8;i++)
    gameover = al_load_bitmap("gameover.png");
    tryagain = al_load_bitmap("tryagain.png");
    help = al_load_bitmap("help.png");
+   tablero= al_load_bitmap("tablero.png");
    exit = al_load_bitmap("exit.png");
    fondo = al_load_bitmap("fondo.jpg");
 
@@ -100,8 +106,8 @@ for(int i=0; i<8;i++)
       al_destroy_display(display);
       return 0;
    }
-   if(!queen2 or !win or !gameover or !tryagain or !help or !exit or !fondo) {
-      al_show_native_message_box(display, "Error", "Error", "Failed to load queen!", 
+   if(!queen2 or !win or !gameover or !tryagain or !help or !exit or !fondo or !tablero) {
+      al_show_native_message_box(display, "Error", "Error", "Failed to load resources!", 
                                  NULL, ALLEGRO_MESSAGEBOX_ERROR);
       al_destroy_display(display);
       return 0;
@@ -155,45 +161,77 @@ for(int i=0; i<8;i++)
          bouncer_x = ev.mouse.x;
          bouncer_y = ev.mouse.y;
       }
-      else if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+      else if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) 
+	{
 	 
 	  
 	  //cout<<"dibujo reina"<<bouncer_x<<" "<<bouncer_y<<endl;
-          if(reinas[(int)bouncer_x/(int)(SCREEN_W/8)][(int)bouncer_y/(int)(SCREEN_W/8)]==0)
-	  {
-		for(int i=0; i<8;i++)
-		{
-			for(int j=0; j<8;j++)
-			{  //cout<<"see: "<<j<<"-"<<(int)bouncer_x/(int)(SCREEN_W/8)<<"+"<<i<<"-"<<(int)bouncer_y/(int)(SCREEN_W/8)<<endl;
-				if(j==(int)bouncer_x/(int)(SCREEN_W/8) or i==(int)bouncer_y/(int)(SCREEN_W/8) or j-(int)bouncer_x/(int)(SCREEN_W/8)==i-(int)bouncer_y/(int)(SCREEN_W/8) or j-(int)bouncer_x/(int)(SCREEN_W/8)+i+7-(int)bouncer_y/(int)(SCREEN_W/8)==7) 
-					reinas[j][i]=2;
+	  if(bouncer_x<=600)
+          {    
+		  if(reinas[(int)bouncer_x/(int)(SCREEN_W/8)][(int)bouncer_y/(int)(SCREEN_W/8)]==0)
+		  {
+			for(int i=0; i<8;i++)
+			{
+				for(int j=0; j<8;j++)
+				{  //cout<<"see: "<<j<<"-"<<(int)bouncer_x/(int)(SCREEN_W/8)<<"+"<<i<<"-"<<(int)bouncer_y/(int)(SCREEN_W/8)<<endl;
+					if(j==(int)bouncer_x/(int)(SCREEN_W/8) or i==(int)bouncer_y/(int)(SCREEN_W/8) or j-(int)bouncer_x/(int)(SCREEN_W/8)==i-(int)bouncer_y/(int)(SCREEN_W/8) or j-(int)bouncer_x/(int)(SCREEN_W/8)+i+7-(int)bouncer_y/(int)(SCREEN_W/8)==7) 
+						reinas[j][i]=2;
+				}
 			}
-		}
-		reinas[(int)bouncer_x/(int)(SCREEN_W/8)][(int)bouncer_y/(int)(SCREEN_W/8)]=1;
-		num_reinas++;
-	  
-		for(int i=0; i<8;i++)
-		{
-			for(int j=0; j<8;j++)
-				cout<<" "<<reinas[j][i];
-			cout<<endl;	
-		} 
-	}       
-	  
+			reinas[(int)bouncer_x/(int)(SCREEN_W/8)][(int)bouncer_y/(int)(SCREEN_W/8)]=1;
+			num_reinas++;
+		  
+			/*for(int i=0; i<8;i++)
+			{
+				for(int j=0; j<8;j++)
+					cout<<" "<<reinas[j][i];
+				cout<<endl;	
+			} */
+		}       
+	}  
 	
-	else if(bouncer_x>650 and bouncer_x<750 and bouncer_y>100 and bouncer_x<200)
-		{
+
+	else if(bouncer_x>650 and bouncer_x<750 and bouncer_y>300 and bouncer_y<400)////HELP
+		{ 
+		  reinas.clear();
+			for(int i=0; i<8;i++)
+		  		reinas.push_back(k);
+			
+			num_reinas=0;
+			ocho_reinas();
+			
+		  /*if(kiwi==0)
+		  	ocho_reinas();
+		  reinas=para_graficar[kiwi];
+		  if(kiwi<91)		 
+			kiwi++;*/
+		  tab=1;
+		}
+	else if(bouncer_x>600 and bouncer_x<800 and bouncer_y>400 and bouncer_y<600 and tab==1)////HELP
+		{ 
+		  reinas.clear();
+			for(int i=0; i<8;i++)
+		  		reinas.push_back(k);
+			
+			num_reinas=0;
+		  if((int)(bouncer_x-600)/20+(int)(bouncer_y-400)/20*10<92)
+		 	 reinas=para_graficar[(int)(bouncer_x-600)/20+(int)(bouncer_y-400)/20*10];
+		  cout<<"Solución: "<<(int)(bouncer_x-600)/20+(int)(bouncer_y-400)/20*10+1<<endl;
+		  
+		  tab=1;
+		}
+
+        else if(bouncer_x>650 and bouncer_x<750 and bouncer_y>180 and bouncer_y<280)///TRYAGAIN
+ 		{
 			reinas.clear();
 			for(int i=0; i<8;i++)
-				reinas.push_back(k);
-			cout<<"here"<<endl;				
+		  		reinas.push_back(k);
+			
+			num_reinas=0;	
+			tab=0;			
 		}
-        else if(bouncer_x>650 and bouncer_x<750 and bouncer_y>250 and bouncer_x<350)
-         	cout<<"AQUI LLAMO AL ARBOL";
-	else if(bouncer_x>650 and bouncer_x<750 and bouncer_y>400 and bouncer_x<550)
+	else if(bouncer_x>650 and bouncer_x<750 and bouncer_y>10 and bouncer_y<160)///EXIT
          	break;
-       
-		
 	
       }
  
@@ -231,15 +269,16 @@ for(int i=0; i<8;i++)
 	  al_draw_bitmap(gameover,50,200,0);
 	  //cout<<"usted perdió"<<endl;
 	}
-	 al_draw_scaled_bitmap(tryagain,0,0,889,889,650,100,100,100,0);
-	 al_draw_scaled_bitmap(help,0,0,256,256,650,250,100,100,0);
-	 al_draw_scaled_bitmap(exit,0,0,400,567,650,400,100,150,0);
+	 al_draw_scaled_bitmap(tryagain,0,0,889,889,650,180,100,100,0);
+	 al_draw_scaled_bitmap(help,0,0,256,256,650,300,100,100,0);
+	 if (tab==1)al_draw_scaled_bitmap(tablero,0,0,324,338,600,400,200,200,0);
+	 al_draw_scaled_bitmap(exit,0,0,400,567,650,10,100,150,0);
          al_draw_bitmap(bouncer, bouncer_x, bouncer_y, 0);
  
          al_flip_display();
       }
    }
- 
+   //al_rest(2);
    al_destroy_bitmap(bouncer);
    al_destroy_timer(timer);
    al_destroy_display(display);
@@ -250,6 +289,7 @@ for(int i=0; i<8;i++)
    al_destroy_bitmap(gameover);
    al_destroy_bitmap(tryagain);
    al_destroy_bitmap(help);
+   al_destroy_bitmap(tablero);
    al_destroy_bitmap(exit);
    al_destroy_bitmap(fondo);	
    al_destroy_event_queue(event_queue);
