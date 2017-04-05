@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
-
+#include <deque>
+#include <queue> 
 using namespace std;
 #define tam 8
 vector<vector<vector<int>>>para_graficar;
@@ -116,6 +117,24 @@ class Arbol{
 	        	}	
         	}        	       	
         }
+	///RECORRIDO EN PROFUNCDIDAD	
+	void Soluciones_Profundidad(vector<Tablero* > &sols)
+        {
+            deque<Tablero *> aux;
+            aux.push_front(m_root);
+            Tablero* tmp;
+            while(!aux.empty())
+            {
+                tmp=aux.front();
+                aux.pop_front();
+                if(tmp->reinas==tam)sols.push_back(tmp);
+                for(int i=0;i<tmp->m_child.size();i++)
+                {
+                    aux.push_front(tmp->m_child[i]);
+                }
+            }
+
+        }
 };
 
 void imprimir_soluciones(vector<Tablero*> soluciones)
@@ -151,7 +170,14 @@ int ocho_reinas()
     cout<<"-------------------------------------------------\n"<<endl;
     a.insertar_reina();
     vector<Tablero*>soluciones;
-    a.Soluciones(soluciones);
+    int mode; 
+    cout<<"(DFS 1 / BFS 2)"<<endl;
+    //cin >> mode; 
+    //if(mode==1) 
+        a.Soluciones_Profundidad(soluciones);
+    //else if (mode==2) 
+//	a.Soluciones(soluciones);
+
     cout<<"EL NUMERO DE SOLUCIONES ES: "<<soluciones.size()<<endl;
     /*for(int i=0;i<soluciones.size();i++)
     {
