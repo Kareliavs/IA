@@ -1,11 +1,11 @@
-# Based on the Athens course at Telecom ParisTech by Jean-Louis Dessales
+# Basado en el curso de Atenas en Telecom ParisTech de Jean-Louis Dessales
 
 import math
 import Tkinter
 from time import sleep
 import random
 from PIL import *
-import PIL  # to interface Python Imaging Library with Tkinter
+import PIL  # Interfaz de Python Imaging Library con Tkinter
 from Simulation import *
 from Simulation_Control import *
 from Draw_Area import *
@@ -14,10 +14,10 @@ from Ground import *
 
 
 class LandCell(object):
-    #defines one cell
+    #define una celda
     def __init__(self, N=0, NP=0, PP=0):
         self.Node = N
-        self.PPheromone = PP # Attractive Pheromone
+        self.PPheromone = PP # Feromona Atractiva
         self.fieldIndex = -1
 
     def __add__(self, Other):
@@ -33,27 +33,27 @@ class Node (object):
         self.Position = Pos
     
 class Landscape(object):
-    """ A 2-D grid with cells that contains pheromone or edges (for graphics)
-        Graph is represented by Nodes and Edges
+    """ Una cuadricula 2-D con celdas que contiene feromona o bordes (para graficos)
+        el grafico esta representado por nodos y bordes
     """ 
     def __init__(self, Size):
         self.Size = Size
         self.Ground = [[LandCell() for x in range(Size)] for x in range(Size)]
         
-        #coordinates of edges with pheromons to be drawn on the map
-        #this field is update in the vaporate function
+        #Coordenadas de los bordes con feromonas que se dibujaran en el mapa
+        #este campo se actualiza en la funcion vaporate
         self.EdgesWithPheromons = [];
 
-        #represents edges - value of pheromone on each edge
+        #representa los bordes - el valor de la feromona en cada borde
         self.Edges = [[0 for col in range(NbNodes)] for row in range(NbNodes)]
         
-        #distances between nodes
+        #distancia entre nodos
         self.Distances = [[0 for col in range(NbNodes)] for row in range(NbNodes)]
         
-        #used to store the actual optimal path                                                        
+        #se utiliza para almacenar la ruta optima actual                                                       
         self.OptimalPath = 10000000000
         
-        #create the nodes
+        #crea los nodos 
         self.Nodes = []
         self.Nodes.append(Node(100,260,0))
         self.Nodes.append(Node(150,100,1))
@@ -68,7 +68,7 @@ class Landscape(object):
         self.Nodes.append(Node(80,80,9))
         self.Nodes.append(Node(210,85,10))
         
-        #compute the distances of all nodes
+        #calcula las distancias de todos los nodos
         for ident in range(NbNodes):
           node = self.Nodes[ident]
           for prev in range(ident):
@@ -77,7 +77,7 @@ class Landscape(object):
             self.Distances[ident][prev] = Distance
             self.Distances[prev][ident] = Distance
         
-        #Positioning the nodes  of the graph randomly
+        #Posicionamiento aleatorio de los nodos del grafico
         #for ident in range(NbNodes):
         #    #symetrical
         #    position = (100+50*(ident%3),100+50*(ident/3))
@@ -101,23 +101,23 @@ class Landscape(object):
         Land.EdgesWithPheromons = []
         for i in range(NbNodes):
           for j in range(NbNodes):
-            #this is the value of the pheromone on the node
+            #este es el valor de la feromona en el nodo
             cell = Land.Edges[i][j]
             
             cell = (1-theta) * cell
             Land.Edges[i][j] = cell
 
-            #if the value is higher than the limit - show the pheromone on the screen
+            #si el valor es mayor que el limite - mostrar la feromona en la pantalla
             if cell > PToShow:
               Land.EdgesWithPheromons.append([Land.Nodes[i].Position,Land.Nodes[j].Position])
 
 
 class Ant(object):
-    """ Defines individual agents - one concrete Ant. The behaviour of ant can be expressed as a state machine with the state:
-        searchNextNode (search for the next node), ReturnToFirstNode, GoToNode (just go to the selected node).
+    """ Define agentes individuales - una hormiga concreta. El comportamiento de hormiga se puede expresar como una maquina de estado con el estado:
+        SearchNextNode (busque el siguiente nodo), ReturnToFirstNode, GoToNode (solo vaya al nodo seleccionado).
     """
     def __init__(self, IdNb):
-        self.IdNb = IdNb    # Identity number
+        self.IdNb = IdNb    # Numero de identificacion
         self.Action = 'SearchNextNode'
         self.Node = Node()
         self.Path = []
@@ -125,7 +125,7 @@ class Ant(object):
         self.NodeDistance = -1
         self.PrevNodeIndex  = -1
         self.ToVisit = []
-        self.Visited = []        # empty array of visited nodes
+        self.Visited = []        # array vacio de nodos visitados 
         
         for i in range(NbNodes):
             self.Visited.append(0)
