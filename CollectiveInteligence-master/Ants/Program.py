@@ -118,19 +118,20 @@ class Ant(object):
     """
     def __init__(self, IdNb):
         self.IdNb = IdNb    # Numero de identificacion
-        self.Action = 'SearchNextNode'
+        self.Action = 'SearchNextNode' #Cada hormiga buscará ejecutar una determinada acción
         self.Node = Node()
         self.Path = []
         self.PathLength = 0
         self.NodeDistance = -1
         self.PrevNodeIndex  = -1
-        self.ToVisit = []
+        self.ToVisit = []		 # array que contendrá los nodos a visitar desde el nodo actual
         self.Visited = []        # array vacio de nodos visitados 
         
         for i in range(NbNodes):
-            self.Visited.append(0)
-            self.ToVisit.append(i)
+            self.Visited.append(0) # Llenamos el array Visited de 0
+            self.ToVisit.append(i) # Añadimos el nodo i para Visitarlo
 
+	#Funcion que Verifica: Si todos los Nodos ya han sido visitados -> Se ha completado el camino
     def isCompleted(self):
         for i in range(NbNodes):
             if self.Visited[i]==0:
@@ -138,74 +139,77 @@ class Ant(object):
                 
         return 1
     
+	#Acción de la Hormiga que marca como visitado a Un nodo con 1 y calcula la distancia que le tomó llegar a este nodo
     def goToNode(self):
         self.Visited[self.Node.Id] = 1
         self.Path.append(self.Node.Id)
         
-        #add the distance of the node to which I just arrived
+        # Añade la distancia calculada , a PathLength, se van acumulando todas las Distancias
         self.PathLength+= self.NodeDistance
         
-        # if we have all nodes visited go to the first node
+        # Verificamos: Si todos los nodos han sido visitados, Volvemos al primer nodo (Punto de Partida)
         if self.isCompleted():
             self.Action = 'GoToFirst'
             firstNode = self.Path[0]
-            #also add the value to the length of the path
+            # Añadimos la distancia del nodo actual hacia el primero
             self.PathLength+= Land.Distances[self.Node.Id][firstNode]
             self.Node = Land.Nodes[self.Path[0]]
             
         else:
             self.Action = 'SearchNextNode'
-                
+       
+	# Otra acción de la hormiga : Se dirige al Primer Nodo del que partió         
     def goToFirst(self):
-        #add the node just to make the path complete
+        # Se añade el nodo al camino para que esten todos los nodos
         self.Path.append(self.Node.Id)
                      
-        #precompute the pheromone value 
+        # Calculamos el Valor de la feromona 1 /longitudRuta ^ k, donde k es un coeficiente para amplificar el impacto de la 			longitud de la ruta a la decisión.
         self.PheromoneValue = 1/math.pow(self.PathLength,k)
               
-        #add the distance of the last node
+        # Se añade la distancia del último Nodo
         if self.PathLength<Land.OptimalPath:
           print self.Path
           print self.PathLength
           Land.OptimalPath = self.PathLength
-        #remove the last added
+        # Se remueve el último NOdo
         self.Path.pop()
             
-        #start copying the path home
+        # Se copia la ruta recorrida Y Regresamos al inicio
         self.Action = 'ReturnToStart'
         to = self.Path.pop()
         Land.Edges[self.Node.Id][to] += self.PheromoneValue
         Land.Edges[to][self.Node.Id] += self.PheromoneValue
         self.Node = Land.Nodes[to]
             
+	# Acción de la hormiga que: Busca el siguiente Nodo ( Que no haya sido visitado y con > cant de feromonas)
     def searchNextNode(self):
         nodeindex = self.Node.Id        
-        #the maximal probability
+        # La máxima probabilidad
         pMax = 0
         p = 0
 
-        #Try to select the best node by the pheromones in the direction
-        #have to iterate over all nodes
+        # Tratar de seleccionar el mejor nodo por las feromonas 
+        # Para ello hay que iterar todos los nodos
         for i in range(NbNodes):
           if i!=self.Node.Id and self.Visited[i]==0:
             d = Land.Distances[self.Node.Id][i]
             
-            #get the value of pheromon on the edge
+            # Obtenemos el valor de la Feromona de la Arista en la que estamos 
             pi = Land.Edges[self.Node.Id][i]
             
-            #To prevent division by zero and get some info
-            #when d = 0 there would be problem in computation of d
+            # Evitamos posible error de : División por 0
+            # Se lanza una excepción
             if d==0:
               print i
               print self.Node.Id
             
-            #the quality of the route
+            # Hayamos la calidad de la Ruta
             nij = 1/d
               
             pselected = math.pow(pi,alfa) * math.pow(nij,beta)
             
-            #normalization
-            #compute the sum of other options
+            # Normalizaión: 
+            # Calculamos la suma de las otras Opciones
             sum = 0
             for j in range(NbNodes):
               if j!=self.Node.Id and self.Visited[j]==0 and j!=i:
@@ -217,21 +221,22 @@ class Ant(object):
             if sum>0:
               p = pselected/sum
 
-            #if we have a new best path - then remember the index
+            # Si tenemos una nueva mejor trayectoria - entonces conservamos el índice
             if p > pMax:
               pMax = p
               nodeindex = i        
         
-        #for the first time when - just choose whatever node
+        # La primera vez(En cuanto scoger el sgnte nodo) se escoge cualquier nodo (Aleatorio)
         while nodeindex == self.Node.Id:
             nodeindex = random.randint(0,NbNodes-1)
 
-        #we have a new node - we will add distance
+        # Añadimos la distancia de este nuevo nodo y vamos a Visitarlo
         self.PathLength += Land.Distances[self.Node.Id][nodeindex]                       
         self.Node = Land.Nodes[nodeindex]
         self.Action = 'GoToNode'
         
-        
+       
+	#Acción de la hormiga: Para una vez terminados de recorrer todos los Nodos, Ir al inicio
     def returnToStart(self):    
         self.Visited[self.Node.Id] = 0
             
