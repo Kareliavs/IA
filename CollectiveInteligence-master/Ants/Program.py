@@ -237,24 +237,24 @@ class Ant(object):
             
         if len(self.Path):
             to = self.Path.pop()
-            #put the pheromon on the edge
+            #Se coloca la feromona en el borde
             Land.Edges[self.Node.Id][to] += self.PheromoneValue
             Land.Edges[to][self.Node.Id] += self.PheromoneValue
 
-            #change my position
+            #Cambiar de poscición
             self.Node = Land.Nodes[to]
             
         else:
-            #arrived home after the journey
+            #Llego a casa despues del viaje
             self.Action = "SearchNextNode"
-            #set the precomputed value to 0
+            #Se establece el valor precalculado en 0
             self.PheromoneValue = 0;
             for i in range(NbNodes):
               self.ToVisit.append(i)
             self.PathLength = 0
         
     def moves(self):
-        #here is the ants move - one of the following actions is always selected
+        #La hormiga se movera de acuerdo a una de las siguientes acciones
         if self.Action == 'GoToNode':
             self.goToNode()
         if self.Action == 'SearchNextNode':
@@ -267,29 +267,29 @@ class Ant(object):
 class Ant_Frame(Generic_Main_Frame):
 
     def __init__(self, Parent,NbAgents):
-        #frame with some additional ant capabilities
+        #Algunas caraterísticas adicionales de las hormigas se encuentran en este frame
         Generic_Main_Frame.__init__(self,Parent,self.oneStep,Wtitle='Ants')
         self.startGround()
         self.LastTimeStep = 0
         self.Counter = 0
-        #create population of agents
+        #Se crea una población de agentes
         self.Pop = [Ant('A%d' % IdNb) for IdNb in range(NbAgents)]
         self.PopSize = NbAgents
-        self.Moves = 0  # counts the number of times agents have moved
+        self.Moves = 0  # contador que almacena el número de veces que se ha movido un agente
         t = Thread(target=self.redraw)
         t.start()
           
     def startGround(self):
-        """ the ground is a 2-D space representing the field where ants wander
+        """ El suelo es un espacio 2D que representa el campo donde las hormigas vagan
         """
         self.Ground = Ground(self, Toric=True)
-        self.Ground.scaleX = self.Ground.scaleY = LandSize   # Logical coordinates
-        self.Ground.W = self.Ground.H = LandWindowSize      # Physical coordinates
+        self.Ground.scaleX = self.Ground.scaleY = LandSize   # Coordenadas lógicas
+        self.Ground.W = self.Ground.H = LandWindowSize      # Coordenadas físicas
         self.Ground.configure(width=self.Ground.W, height=self.Ground.H)
-        self.Ground.pack(expand=Tkinter.YES,fill=Tkinter.BOTH)  # the window shows on the scren
+        self.Ground.pack(expand=Tkinter.YES,fill=Tkinter.BOTH)  # Ventana que muestra la pantalla
            
     def oneStep(self):
-        # this function is called back after each simulation step
+        #Esta función es llamada atras despues del paso de la simulación
         Land.evaporate()
         
         for agent in self.Pop:
@@ -300,8 +300,8 @@ class Ant_Frame(Generic_Main_Frame):
     
     def redraw(self):
         while 1:
-            # the landscape is entirely redrawn
-            self.Ground.erase() # supposedly destroys all objects on ground
+            # El paisaje es totalmente rediseñado
+            self.Ground.erase() # Destruye los objetos sobre el terreno
             
             self.displayNodes(Land.Nodes)
             self.displayPheromons(Land.EdgesWithPheromons)
@@ -320,7 +320,7 @@ class Ant_Frame(Generic_Main_Frame):
             self.Ground.create_rectangle(coord[0]-2, coord[1]-2, coord[0]+2, coord[1]+2,outline='black',fill='gray50')
         
 def Start():
-    MainWindow = Tkinter.Tk()   # creates the main window
+    MainWindow = Tkinter.Tk()   # Crea la ventana principal
     MainWindow.title('Ants')
     MainWindow.GParent = MainWindow
 
@@ -330,7 +330,7 @@ def Start():
     MainWindow.lift()
     MainWindow.focus_force()
     # Entering main loop
-    MainWindow.mainloop()   # control is given to the window system
+    MainWindow.mainloop()   # Se controla el sistema de ventanas
     OptimalPath=10000000000
 
 
@@ -340,19 +340,19 @@ if __name__ == "__main__":
     LandSize = 300
     NbNodes = 11
 
-    #level of pheromone to show
+    # Nivel de feromonas
     PToShow = 0.004
     
-    #factor which lowers the value given to a path on function of the paths length
+    #Factor que disminuye el valor dado por una trayectoria en la funcion de longitud de los trayectos
     k=1
     
-    #evaporation factor
+    #El factor de evaporación
     theta = 0.07
    
-    #parameter which amplifies the value of the pheromon on the edge (pi^alfa)
+    #Parámetro que amplifica el valor de la feromona ( pi^alpha )
     alfa = 4
 
-    #parameter which amplifies the impact of the quality of the route  ni^beta; ni=1/de
+    #Parámetro que amplifica el impacto de la calidad de la ruta ni ^ beta; Ni = 1 / de
     beta = 2.5
 
     Land = Landscape(LandSize)
