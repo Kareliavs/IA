@@ -246,7 +246,7 @@ class Ant(object):
             Land.Edges[self.Node.Id][to] += self.PheromoneValue
             Land.Edges[to][self.Node.Id] += self.PheromoneValue
 
-            #Cambiar de poscición
+            #Cambiar de poscicion
             self.Node = Land.Nodes[to]
             
         else:
@@ -272,15 +272,15 @@ class Ant(object):
 class Ant_Frame(Generic_Main_Frame):
 
     def __init__(self, Parent,NbAgents):
-        #Algunas caraterísticas adicionales de las hormigas se encuentran en este frame
+        #Algunas carateristicas adicionales de las hormigas se encuentran en este frame
         Generic_Main_Frame.__init__(self,Parent,self.oneStep,Wtitle='Ants')
         self.startGround()
         self.LastTimeStep = 0
         self.Counter = 0
-        #Se crea una población de agentes
+        #Se crea una poblacion de agentes
         self.Pop = [Ant('A%d' % IdNb) for IdNb in range(NbAgents)]
         self.PopSize = NbAgents
-        self.Moves = 0  # contador que almacena el número de veces que se ha movido un agente
+        self.Moves = 0  # contador que almacena el numero de veces que se ha movido un agente
         t = Thread(target=self.redraw)
         t.start()
           
@@ -288,13 +288,13 @@ class Ant_Frame(Generic_Main_Frame):
         """ El suelo es un espacio 2D que representa el campo donde las hormigas vagan
         """
         self.Ground = Ground(self, Toric=True)
-        self.Ground.scaleX = self.Ground.scaleY = LandSize   # Coordenadas lógicas
-        self.Ground.W = self.Ground.H = LandWindowSize      # Coordenadas físicas
+        self.Ground.scaleX = self.Ground.scaleY = LandSize   # Coordenadas logicas
+        self.Ground.W = self.Ground.H = LandWindowSize      # Coordenadas fisicas
         self.Ground.configure(width=self.Ground.W, height=self.Ground.H)
         self.Ground.pack(expand=Tkinter.YES,fill=Tkinter.BOTH)  # Ventana que muestra la pantalla
            
     def oneStep(self):
-        #Esta función es llamada atras despues del paso de la simulación
+        #Esta funcion es llamada atras despues del paso de la simulacion
         Land.evaporate()
         
         for agent in self.Pop:
@@ -305,7 +305,7 @@ class Ant_Frame(Generic_Main_Frame):
     
     def redraw(self):
         while 1:
-            # El paisaje es totalmente rediseñado
+            # El paisaje es totalmente redisenhado
             self.Ground.erase() # Destruye los objetos sobre el terreno
             
             self.displayNodes(Land.Nodes)
@@ -351,13 +351,13 @@ if __name__ == "__main__":
     #Factor que disminuye el valor dado por una trayectoria en la funcion de longitud de los trayectos
     k=1
     
-    #El factor de evaporación
+    #El factor de evaporacion
     theta = 0.07
    
-    #Parámetro que amplifica el valor de la feromona ( pi^alpha )
+    #Parametro que amplifica el valor de la feromona ( pi^alpha )
     alfa = 4
 
-    #Parámetro que amplifica el impacto de la calidad de la ruta ni ^ beta; Ni = 1 / de
+    #Parametro que amplifica el impacto de la calidad de la ruta ni ^ beta; Ni = 1 / de
     beta = 2.5
 
     Land = Landscape(LandSize)
