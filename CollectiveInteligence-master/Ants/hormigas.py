@@ -305,7 +305,7 @@ class Ant_Frame(Generic_Main_Frame):
     
     def redraw(self):
         while 1:
-            # El paisaje es totalmente redisenhado
+            # El paisaje es totalmente redisenado
             self.Ground.erase() # Destruye los objetos sobre el terreno
             
             self.displayNodes(Land.Nodes)
